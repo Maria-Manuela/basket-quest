@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basket Quest — Smart Basket Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: "#F7F4EF",
+            forest: "#1F4D3A",
+            forestSoft: "#2F6B52",
+            coral: "#D9785F",
+            ink: "#1C2421",
+            mist: "#E8E2D8",
+            mobilepay: "#5A78FF",
+            mobilepayDark: "#3D5BE0",
+          },
+          fontFamily: {
+            display: ['"Fraunces"', "Georgia", "serif"],
+            body: ['"Source Sans 3"', "system-ui", "sans-serif"],
+          },
+          boxShadow: {
+            soft: "0 10px 30px rgba(28, 36, 33, 0.08)",
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: "Source Sans 3", system-ui, sans-serif; }
+    .font-display { font-family: "Fraunces", Georgia, serif; }
+    .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(28, 36, 33, 0.1); }
+    .fade-in { animation: fadeIn 0.35s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .page { display: none; }
+    .page.is-active { display: block; }
+    .nav-link.is-active { color: #1F4D3A; background: rgba(31, 77, 58, 0.08); }
+    .step-dot.is-done { background: #1F4D3A; color: #F7F4EF; }
+    .step-dot.is-current { background: #D9785F; color: #fff; }
+    .challenge-option.is-selected {
+      border-color: rgba(255, 255, 255, 0.55);
+      background: rgba(255, 255, 255, 0.14);
+    }
+    .progress-bar { transition: width 0.35s ease; }
+    .mp-mark {
+      background: linear-gradient(145deg, #6B88FF 0%, #5A78FF 45%, #3D5BE0 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 20px rgba(90, 120, 255, 0.35);
+    }
+    :focus-visible {
+      outline: 2px solid #D9785F;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body class="bg-cream text-ink min-h-screen flex flex-col">
+  <header class="border-b border-mist bg-cream/95 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <a href="#shop" class="group" data-nav="shop">
+          <p class="font-display text-2xl sm:text-3xl text-forest tracking-tight group-hover:opacity-90">Basket Quest</p>
+          <p class="text-sm text-ink/70 mt-0.5 hidden sm:block">Build smarter baskets for everyday shopping</p>
+        </a>
+
+        <nav class="flex flex-wrap items-center gap-1 sm:gap-2" aria-label="Main">
+          <a href="#shop" data-nav="shop" class="nav-link rounded-xl px-3 py-2 text-sm font-medium text-ink/70 hover:text-forest transition">Shop</a>
+          <a href="#about" data-nav="about" class="nav-link rounded-xl px-3 py-2 text-sm font-medium text-ink/70 hover:text-forest transition">About</a>
+          <a href="#contact" data-nav="contact" class="nav-link rounded-xl px-3 py-2 text-sm font-medium text-ink/70 hover:text-forest transition">Contact</a>
+          <a href="#checkout" data-nav="checkout"
+            class="nav-link ml-1 inline-flex items-center gap-2 rounded-xl bg-forest text-cream px-3 py-2 text-sm font-medium hover:bg-forestSoft transition">
+            Checkout
+            <span id="nav-cart-count" class="rounded-full bg-cream/20 px-2 py-0.5 text-xs">0</span>
+          </a>
+        </nav>
+
+        <div class="rounded-2xl bg-white border border-mist px-3 py-2 shadow-soft">
+          <p class="text-[10px] uppercase tracking-wide text-ink/50">Best score</p>
+          <p id="best-score" class="font-display text-lg leading-none text-forest">0</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SHOP -->
+  <main id="page-shop" class="page flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 lg:py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+      <section class="lg:col-span-8 space-y-6">
+        <div class="rounded-3xl bg-forest text-cream p-5 sm:p-6 shadow-soft fade-in">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-[0.16em] text-cream/70">Your challenge</p>
+              <h1 id="challenge-title" class="font-display text-2xl sm:text-3xl mt-1 leading-tight"></h1>
+            </div>
+            <button id="btn-clear-basket" type="button" class="rounded-xl bg-coral/90 hover:bg-coral px-3 py-2 text-sm font-medium transition">
+              Clear basket
+            </button>
+          </div>
+          <p id="challenge-brief" class="mt-3 text-cream/85 max-w-2xl"></p>
+
+          <div class="mt-5">
+            <p class="text-xs uppercase tracking-[0.14em] text-cream/70 mb-2">Choose a challenge</p>
+            <div id="challenge-picker" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-2"></div>
+          </div>
+
+          <div class="mt-5 grid sm:grid-cols-2 gap-3">
+            <div class="rounded-2xl bg-white/10 p-3">
+              <p class="text-xs text-cream/70">Live progress</p>
+              <ul id="challenge-checks" class="mt-2 space-y-1.5 text-sm"></ul>
+            </div>
+            <div class="rounded-2xl bg-white/10 p-3">
+              <p class="text-xs text-cream/70">Score</p>
+              <p id="live-score" class="font-display text-4xl mt-1">0<span class="text-lg text-cream/70">/100</span></p>
+              <div class="mt-2 h-2 rounded-full bg-white/15 overflow-hidden">
+                <div id="score-bar" class="h-full rounded-full bg-coral progress-bar" style="width:0%"></div>
+              </div>
+              <p id="score-hint" class="text-sm text-cream/80 mt-2">Add products to start scoring.</p>
+            </div>
+          </div>
+        </div>
+
+        <section id="recommendations" class="rounded-3xl border border-forest/15 bg-white p-4 sm:p-5 shadow-soft">
+          <div>
+            <p class="text-xs uppercase tracking-[0.14em] text-forest/60">Based on your basket</p>
+            <h2 class="font-display text-xl text-forest">Recommended for you</h2>
+          </div>
+          <div id="reco-grid" class="mt-4 grid sm:grid-cols-3 gap-3"></div>
+        </section>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <p class="text-sm font-medium text-ink/60 mr-1">Categories</p>
+          <div id="category-filters" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div id="product-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+      </section>
+
+      <aside class="lg:col-span-4">
+        <div class="lg:sticky lg:top-24 space-y-4">
+          <section class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
+            <div class="flex items-center justify-between">
+              <h2 class="font-display text-xl text-forest">Your basket</h2>
+              <span id="item-count" class="text-sm rounded-full bg-mist px-3 py-1">0 items</span>
+            </div>
+            <div id="cart-items" class="mt-4 space-y-3 max-h-64 overflow-y-auto pr-1">
+              <p class="text-sm text-ink/50">Your basket is empty.</p>
+            </div>
+            <dl class="mt-4 space-y-2 text-sm border-t border-mist pt-4">
+              <div class="flex justify-between"><dt>Subtotal</dt><dd id="side-subtotal">DKK 0</dd></div>
+              <div class="flex justify-between text-ink/55"><dt>Est. delivery</dt><dd id="side-delivery">DKK 0</dd></div>
+              <div class="flex justify-between font-semibold text-base"><dt>Total</dt><dd id="side-total">DKK 0</dd></div>
+            </dl>
+            <p id="side-feedback" class="mt-3 text-sm text-ink/65"></p>
+            <a href="#checkout"
+              class="mt-4 flex w-full items-center justify-center rounded-xl bg-forest hover:bg-forestSoft text-cream font-medium py-3 transition">
+              Go to checkout
+            </a>
+          </section>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- CHECKOUT -->
+  <main id="page-checkout" class="page flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8">
+    <div class="fade-in">
+      <p class="text-xs uppercase tracking-[0.16em] text-forest/60">Checkout</p>
+      <h1 class="font-display text-3xl sm:text-4xl text-forest mt-1">Complete your order</h1>
+      <p class="mt-2 text-ink/65 max-w-2xl">Review your basket, choose delivery, and pay with MobilePay.</p>
+
+      <ol class="mt-6 flex flex-wrap gap-3" aria-label="Checkout steps">
+        <li class="flex items-center gap-2 text-sm"><span id="step-1-dot" class="step-dot is-current h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold bg-mist">1</span> Basket</li>
+        <li class="flex items-center gap-2 text-sm"><span id="step-2-dot" class="step-dot h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold bg-mist">2</span> Delivery & pay</li>
+        <li class="flex items-center gap-2 text-sm"><span id="step-3-dot" class="step-dot h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold bg-mist">3</span> Confirmed</li>
+      </ol>
+
+      <div id="checkout-empty" class="hidden mt-8 rounded-3xl bg-white border border-mist p-8 text-center shadow-soft">
+        <p class="font-display text-2xl text-forest">Your basket is empty</p>
+        <p class="mt-2 text-ink/60">Add products on the shop page first.</p>
+        <a href="#shop" class="inline-flex mt-5 rounded-xl bg-forest text-cream px-5 py-3 font-medium hover:bg-forestSoft transition">Back to shop</a>
+      </div>
+
+      <div id="checkout-flow" class="mt-8 grid lg:grid-cols-5 gap-6">
+        <div class="lg:col-span-3 space-y-4">
+          <section class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
+            <h2 class="font-display text-xl text-forest">Order summary</h2>
+            <div id="checkout-lines" class="mt-4 space-y-3"></div>
+          </section>
+
+          <section class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
+            <h2 class="font-display text-xl text-forest">Delivery</h2>
+            <div id="delivery-options" class="mt-3 space-y-2"></div>
+            <p id="free-shipping-note" class="mt-2 text-xs text-ink/55"></p>
+          </section>
+
+          <section class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
+            <h2 class="font-display text-xl text-forest">Payment</h2>
+            <p class="mt-1 text-sm text-ink/60">Pay securely with MobilePay.</p>
+
+            <!-- Realistic MobilePay method card -->
+            <div class="mt-4 rounded-2xl border-2 border-mobilepay bg-[#F4F6FF] overflow-hidden">
+              <div class="flex items-center gap-3 px-4 py-3 bg-white border-b border-[#DCE3FF]">
+                <span class="h-5 w-5 rounded-full border-[6px] border-mobilepay bg-white shrink-0" aria-hidden="true"></span>
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="mp-mark h-9 w-9 rounded-xl flex items-center justify-center text-white font-bold text-xs tracking-tight">MP</div>
+                  <div>
+                    <p class="font-semibold text-[#1B2A4A]">MobilePay</p>
+                    <p class="text-xs text-[#5A6A8A]">Denmark’s favourite way to pay</p>
+                  </div>
+                </div>
+                <p id="mp-amount" class="ml-auto font-semibold text-[#1B2A4A]">DKK 0</p>
+              </div>
+              <div class="px-4 py-4 space-y-3">
+                <label class="block">
+                  <span class="text-xs font-medium text-[#5A6A8A]">MobilePay phone number</span>
+                  <div class="mt-1 flex rounded-xl overflow-hidden border border-[#C9D3F5] bg-white focus-within:border-mobilepay">
+                    <span class="px-3 py-2.5 text-sm text-[#5A6A8A] bg-[#EEF2FF] border-r border-[#C9D3F5]">+45</span>
+                    <input id="mp-phone" type="tel" inputmode="numeric" placeholder="12 34 56 78" maxlength="11"
+                      class="flex-1 px-3 py-2.5 text-sm outline-none" autocomplete="tel-national" />
+                  </div>
+                </label>
+                <p class="text-xs text-[#5A6A8A]">Open the MobilePay app on your phone to approve the payment when prompted.</p>
+              </div>
+            </div>
+
+            <label class="mt-4 flex items-start gap-3 text-sm">
+              <input id="checkout-agree" type="checkbox" class="mt-1 accent-[#1F4D3A]" />
+              <span>I confirm my basket and delivery details are correct.</span>
+            </label>
+          </section>
+        </div>
+
+        <aside class="lg:col-span-2 space-y-4">
+          <section class="rounded-3xl bg-white border border-mist p-5 shadow-soft lg:sticky lg:top-24">
+            <h2 class="font-display text-xl text-forest">Totals</h2>
+            <dl class="mt-4 space-y-2 text-sm">
+              <div class="flex justify-between"><dt>Subtotal</dt><dd id="subtotal">DKK 0</dd></div>
+              <div class="flex justify-between"><dt>Delivery</dt><dd id="delivery-cost">DKK 0</dd></div>
+              <div class="flex justify-between text-base font-semibold border-t border-mist pt-2">
+                <dt>Total</dt><dd id="total">DKK 0</dd>
+              </div>
+            </dl>
+            <div class="mt-4 rounded-2xl bg-forest/5 border border-forest/10 p-3">
+              <p class="text-xs text-ink/50">Challenge score</p>
+              <p id="checkout-score" class="font-display text-3xl text-forest">0/100</p>
+            </div>
+            <div id="feedback-list" class="mt-4 space-y-2"></div>
+            <button id="btn-place-order" type="button"
+              class="mt-5 w-full rounded-xl bg-mobilepay hover:bg-mobilepayDark text-white font-semibold py-3.5 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              <span class="inline-flex h-6 w-6 items-center justify-center rounded-md bg-white/20 text-[10px] font-bold">MP</span>
+              Pay with MobilePay
+            </button>
+            <a href="#shop" class="mt-3 block text-center text-sm text-forest hover:underline">Continue shopping</a>
+          </section>
+        </aside>
+      </div>
+
+      <div id="checkout-success" class="hidden mt-8 rounded-3xl bg-forest text-cream p-8 shadow-soft fade-in text-center">
+        <p class="text-xs uppercase tracking-[0.16em] text-cream/70">Payment approved</p>
+        <p class="font-display text-3xl sm:text-4xl mt-2">Thanks — your order is confirmed</p>
+        <p id="success-order-id" class="mt-2 text-cream/75"></p>
+        <p id="success-score" class="font-display text-5xl mt-4">0/100</p>
+        <p id="success-summary" class="mt-3 text-cream/85 max-w-xl mx-auto"></p>
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+          <button id="btn-shop-again" type="button" class="rounded-xl bg-cream text-forest px-5 py-3 font-medium hover:bg-white transition">Shop again</button>
+          <a href="#shop" class="rounded-xl bg-cream/15 hover:bg-cream/25 px-5 py-3 font-medium transition">Pick another challenge</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ABOUT -->
+  <main id="page-about" class="page flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-10">
+    <article class="fade-in space-y-6">
+      <div>
+        <p class="text-xs uppercase tracking-[0.16em] text-forest/60">About</p>
+        <h1 class="font-display text-3xl sm:text-4xl text-forest mt-1">Shop with a goal, not a guess</h1>
+      </div>
+      <p class="text-lg text-ink/75 leading-relaxed">
+        Basket Quest helps you build better shopping baskets. Pick a challenge — gift under budget, organic breakfast, sustainable restock —
+        then choose products that fit the brief while we track score, delivery savings, and recommendations as you go.
+      </p>
+      <div class="grid sm:grid-cols-3 gap-4">
+        <div class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
+          <p class="text-2xl" aria-hidden="true">🎯</p>
+          <h2 class="font-display text-lg text-forest mt-2">Guided challenges</h2>
+          <p class="text-sm text-ink/65 mt-1">Clear goals for budget, product count, and product tags.</p>
+        </div>
+        <div class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
+          <p class="text-2xl" aria-hidden="true">✨</p>
+          <h2 class="font-display text-lg text-forest mt-2">Smart suggestions</h2>
+          <p class="text-sm text-ink/65 mt-1">Recommendations update from what you already added.</p>
+        </div>
+        <div class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
+          <p class="text-2xl" aria-hidden="true">🚚</p>
+          <h2 class="font-display text-lg text-forest mt-2">Delivery that makes sense</h2>
+          <p class="text-sm text-ink/65 mt-1">Parcel shop, home delivery, or click & collect — with free shipping thresholds.</p>
+        </div>
+      </div>
+      <section class="rounded-3xl bg-forest text-cream p-6 shadow-soft">
+        <h2 class="font-display text-2xl">Made for everyday Danish shopping</h2>
+        <p class="mt-3 text-cream/85 text-sm leading-relaxed">
+          Prices in DKK, MobilePay at checkout, and a catalogue spanning food, home, self-care, gifts, and essentials —
+          so planning a basket feels familiar from the first click.
+        </p>
+      </section>
+    </article>
+  </main>
+
+  <!-- CONTACT -->
+  <main id="page-contact" class="page flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 py-10">
+    <div class="fade-in">
+      <p class="text-xs uppercase tracking-[0.16em] text-forest/60">Contact</p>
+      <h1 class="font-display text-3xl sm:text-4xl text-forest mt-1">We’re here to help</h1>
+      <p class="mt-2 text-ink/65">Questions about your order, delivery, or a challenge? Send us a message.</p>
+
+      <form id="contact-form" class="mt-8 rounded-3xl bg-white border border-mist p-6 shadow-soft space-y-4" novalidate>
+        <div>
+          <label for="contact-name" class="block text-sm font-medium mb-1">Name</label>
+          <input id="contact-name" name="name" required autocomplete="name"
+            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition" />
+        </div>
+        <div>
+          <label for="contact-email" class="block text-sm font-medium mb-1">Email</label>
+          <input id="contact-email" name="email" type="email" required autocomplete="email"
+            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition" />
+        </div>
+        <div>
+          <label for="contact-topic" class="block text-sm font-medium mb-1">Topic</label>
+          <select id="contact-topic" name="topic"
+            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition">
+            <option>Order or delivery status</option>
+            <option>Product availability</option>
+            <option>Challenge or scoring help</option>
+            <option>Payment with MobilePay</option>
+            <option>Return or exchange</option>
+            <option>Something else</option>
+          </select>
+        </div>
+        <div>
+          <label for="contact-message" class="block text-sm font-medium mb-1">Message</label>
+          <textarea id="contact-message" name="message" rows="4" required
+            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition resize-y"
+            placeholder="Include your order number if you have one…"></textarea>
+        </div>
+        <button type="submit" class="w-full rounded-xl bg-forest hover:bg-forestSoft text-cream font-medium py-3 transition">
+          Send message
+        </button>
+        <p id="contact-status" class="text-sm text-center text-ink/55" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </main>
+
+  <footer class="border-t border-mist mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-ink/45">
+      <p>© Basket Quest · Everyday shopping, made clearer</p>
+      <div class="flex gap-4">
+        <a href="#about" class="hover:text-forest">About</a>
+        <a href="#contact" class="hover:text-forest">Contact</a>
+        <a href="#checkout" class="hover:text-forest">Checkout</a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden rounded-2xl bg-ink text-cream px-4 py-3 text-sm shadow-soft" role="status"></div>
+
+  <script>
+    /* Basket Quest — cart, challenges, recommendations, checkout */
+
+    const PRODUCTS = [
+      { id: "bq-oat-001", name: "Økologisk Havregryn", price: 39, category: "Food", description: "Creamy organic oats from Jutland farms.", emoji: "🥣", tags: ["organic", "local", "sustainable"] },
+      { id: "bq-salm-002", name: "Smoked Salmon Snack Pack", price: 79, category: "Food", description: "Ready-to-serve Nordic salmon bites.", emoji: "🐟", tags: ["local", "gift-friendly"] },
+      { id: "bq-rye-003", name: "Rye Crispbread Duo", price: 45, category: "Food", description: "Crunchy wholegrain crispbread pair.", emoji: "🍞", tags: ["local", "vegan"] },
+      { id: "bq-berry-004", name: "Berry Compote Jar", price: 55, category: "Food", description: "Forest berries, lightly sweetened.", emoji: "🫙", tags: ["organic", "gift-friendly"] },
+      { id: "bq-linen-005", name: "Linen Tea Towel Set", price: 149, category: "Home", description: "Soft stone-washed linen in moss green.", emoji: "🧺", tags: ["Danish design", "sustainable", "gift-friendly"] },
+      { id: "bq-board-006", name: "Beechwood Cutting Board", price: 229, category: "Home", description: "Hand-finished board for everyday prep.", emoji: "🪵", tags: ["Danish design", "local", "gift-friendly"] },
+      { id: "bq-candle-007", name: "Soy Candle — Pine Coast", price: 129, category: "Home", description: "Slow-burn candle with coastal pine notes.", emoji: "🕯️", tags: ["sustainable", "vegan", "gift-friendly"] },
+      { id: "bq-mug-008", name: "Ceramic Mug — Fjord Blue", price: 119, category: "Home", description: "Wheel-thrown mug with matte glaze.", emoji: "☕", tags: ["Danish design", "gift-friendly"] },
+      { id: "bq-mist-009", name: "Seaweed Face Mist", price: 169, category: "Self-care", description: "Hydrating mist with Nordic seaweed.", emoji: "💧", tags: ["organic", "vegan", "sustainable"] },
+      { id: "bq-soap-010", name: "Birch Bath Soap Trio", price: 99, category: "Self-care", description: "Gentle soaps wrapped in recycled paper.", emoji: "🧼", tags: ["organic", "local", "gift-friendly"] },
+      { id: "bq-socks-011", name: "Wool Slipper Socks", price: 159, category: "Self-care", description: "Cosy merino blend for cold evenings.", emoji: "🧦", tags: ["local", "gift-friendly"] },
+      { id: "bq-gift-012", name: "Mini Gift Box — Hygge", price: 189, category: "Gifts", description: "Tea, honey sticks, and a linen napkin.", emoji: "🎁", tags: ["gift-friendly", "local"] },
+      { id: "bq-tote-013", name: "Reusable Market Tote", price: 89, category: "Everyday", description: "Sturdy organic cotton tote for errands.", emoji: "🛍️", tags: ["sustainable", "vegan", "organic"] },
+      { id: "bq-soapref-014", name: "Dish Soap Refill Pouch", price: 69, category: "Everyday", description: "Plant-based cleaner in a refill pouch.", emoji: "🧴", tags: ["sustainable", "vegan"] },
+    ];
+
+    const CHALLENGES = [
+      {
+        id: "c1",
+        title: "Sustainable home gift",
+        short: "Gift under DKK 500",
+        brief: "Build a sustainable home gift basket under DKK 500. Add at least 3 products and unlock free parcel-shop delivery.",
+        budget: 500,
+        minItems: 3,
+        requiredTags: ["sustainable", "gift-friendly"],
+        requireFreeParcel: true,
+      },
+      {
+        id: "c2",
+        title: "Organic breakfast kit",
+        short: "Breakfast under DKK 250",
+        brief: "Assemble an organic breakfast under DKK 250 with at least 3 products tagged organic.",
+        budget: 250,
+        minItems: 3,
+        requiredTags: ["organic"],
+        requireFreeParcel: false,
+      },
+      {
+        id: "c3",
+        title: "Self-care Sunday",
+        short: "Self-care under DKK 450",
+        brief: "Create a calming self-care basket under DKK 450 with at least 3 products including one vegan item.",
+        budget: 450,
+        minItems: 3,
+        requiredTags: ["vegan"],
+        requireFreeParcel: false,
+      },
+      {
+        id: "c4",
+        title: "Danish design host gift",
+        short: "Design gift under DKK 600",
+        brief: "Pick a Danish design host gift under DKK 600. Include Danish design + gift-friendly products and unlock free parcel-shop delivery.",
+        budget: 600,
+        minItems: 2,
+        requiredTags: ["Danish design", "gift-friendly"],
+        requireFreeParcel: true,
+      },
+      {
+        id: "c5",
+        title: "Everyday green restock",
+        short: "Restock under DKK 300",
+        brief: "Restock everyday essentials under DKK 300 with at least 2 sustainable products.",
+        budget: 300,
+        minItems: 2,
+        requiredTags: ["sustainable"],
+        requireFreeParcel: false,
+      },
+    ];
+
+    const DELIVERY = {
+      parcel: { id: "parcel", label: "Parcel shop", price: 39 },
+      home: { id: "home", label: "Home delivery", price: 59 },
+      collect: { id: "collect", label: "Click & collect", price: 0 },
+    };
+
+    const FREE_PARCEL_THRESHOLD = 399;
+    const STORAGE_CART = "basketQuest.cart";
+    const STORAGE_BEST = "basketQuest.bestScore";
+    const STORAGE_DELIVERY = "basketQuest.delivery";
+    const STORAGE_CHALLENGE = "basketQuest.challengeId";
+    const STORAGE_CONTACT = "basketQuest.contactMessages";
+    const STORAGE_PHONE = "basketQuest.mpPhone";
+
+    let cart = {};
+    let activeChallenge = CHALLENGES[0];
+    let deliveryMethod = "parcel";
+    let bestScore = 0;
+    let activeCategory = "All";
+    let orderPlaced = false;
+    let lastOrderMeta = null;
+    let toastTimer = null;
+
+    function formatDKK(amount) {
+      return `DKK ${Math.round(amount)}`;
+    }
+
+    function getProduct(id) {
+      return PRODUCTS.find((p) => p.id === id);
+    }
+
+    function getCartLines() {
+      return Object.entries(cart)
+        .filter(([, qty]) => qty > 0)
+        .map(([id, qty]) => ({ product: getProduct(id), qty }))
+        .filter((line) => line.product);
+    }
+
+    function getItemCount() {
+      return getCartLines().reduce((sum, line) => sum + line.qty, 0);
+    }
+
+    function getSubtotal() {
+      return getCartLines().reduce((sum, line) => sum + line.product.price * line.qty, 0);
+    }
+
+    function getDeliveryCost(subtotal = getSubtotal()) {
+      if (deliveryMethod === "parcel") {
+        return subtotal >= FREE_PARCEL_THRESHOLD ? 0 : DELIVERY.parcel.price;
+      }
+      if (deliveryMethod === "home") return DELIVERY.home.price;
+      return DELIVERY.collect.price;
+    }
+
+    function getTotal() {
+      return getSubtotal() + getDeliveryCost();
+    }
+
+    function cartHasTag(tag) {
+      return getCartLines().some(({ product }) => product.tags.includes(tag));
+    }
+
+    function countTagMatches(tag) {
+      return getCartLines().reduce((sum, { product, qty }) => (
+        product.tags.includes(tag) ? sum + qty : sum
+      ), 0);
+    }
+
+    /** Suggestions based on basket tags + active challenge needs */
+    async function getRecommendations(limit = 3) {
+      const inCart = new Set(Object.keys(cart));
+      const tagWeights = {};
+      getCartLines().forEach(({ product }) => {
+        product.tags.forEach((tag) => {
+          tagWeights[tag] = (tagWeights[tag] || 0) + 1;
+        });
+      });
+
+      const ranked = PRODUCTS
+        .filter((p) => !inCart.has(p.id))
+        .map((p) => {
+          const score = p.tags.reduce((s, t) => s + (tagWeights[t] || 0), 0)
+            + (activeChallenge.requiredTags.some((t) => p.tags.includes(t) && !cartHasTag(t)) ? 3 : 0)
+            + (activeChallenge.requiredTags.some((t) => p.tags.includes(t)) ? 1 : 0);
+          return { product: p, score };
+        })
+        .sort((a, b) => b.score - a.score || a.product.price - b.product.price);
+
+      const picks = ranked.filter((r) => r.score > 0).slice(0, limit).map((r) => r.product);
+      if (picks.length < limit) {
+        const fillers = PRODUCTS.filter((p) => !inCart.has(p.id) && !picks.includes(p));
+        while (picks.length < limit && fillers.length) picks.push(fillers.shift());
+      }
+      return picks;
+    }
+
+    function evaluateChallenge() {
+      const challenge = activeChallenge;
+      const subtotal = getSubtotal();
+      const itemCount = getItemCount();
+      const freeParcelUnlocked = subtotal >= FREE_PARCEL_THRESHOLD;
+      const withinBudget = itemCount > 0 && subtotal <= challenge.budget;
+      const enoughItems = itemCount >= challenge.minItems;
+      const tagResults = challenge.requiredTags.map((tag) => ({
+        tag,
+        ok: cartHasTag(tag),
+        count: countTagMatches(tag),
+      }));
+      const tagsOk = tagResults.every((t) => t.ok);
+      const deliveryOk = !challenge.requireFreeParcel || freeParcelUnlocked;
+
+      let score = 0;
+      if (itemCount > 0 && withinBudget) score += 30;
+      else if (itemCount > 0 && subtotal <= challenge.budget * 1.15) score += 12;
+
+      if (enoughItems) score += 25;
+      else if (itemCount > 0) score += Math.round((itemCount / challenge.minItems) * 25);
+
+      const tagSlice = 30 / Math.max(challenge.requiredTags.length, 1);
+      tagResults.forEach((t) => { if (t.ok) score += tagSlice; });
+
+      if (!challenge.requireFreeParcel) score += 15;
+      else if (freeParcelUnlocked) score += 15;
+      else if (subtotal > 0) score += Math.round((subtotal / FREE_PARCEL_THRESHOLD) * 15);
+
+      score = Math.min(100, Math.round(score));
+      const complete = withinBudget && enoughItems && tagsOk && deliveryOk && itemCount > 0;
+
+      const feedback = [];
+      if (itemCount === 0) feedback.push("Add products to begin the challenge.");
+      if (itemCount > 0 && !withinBudget) feedback.push(`Over budget by ${formatDKK(subtotal - challenge.budget)}.`);
+      if (!enoughItems) {
+        const need = challenge.minItems - itemCount;
+        if (need > 0) feedback.push(`Add ${need} more product${need === 1 ? "" : "s"}.`);
+      }
+      tagResults.forEach((t) => { if (!t.ok) feedback.push(`Add one ${t.tag} product.`); });
+      if (challenge.requireFreeParcel && !freeParcelUnlocked) {
+        feedback.push(`Spend ${formatDKK(Math.max(FREE_PARCEL_THRESHOLD - subtotal, 0))} more for free parcel-shop delivery.`);
+      }
+      if (freeParcelUnlocked && deliveryMethod === "parcel") feedback.push("Free delivery unlocked");
+      if (complete) feedback.push("All challenge goals met — nice basket!");
+
+      return {
+        score, complete, withinBudget, enoughItems, tagsOk, tagResults,
+        deliveryOk, freeParcelUnlocked, subtotal, itemCount, feedback,
+      };
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_CART, JSON.stringify(cart));
+      localStorage.setItem(STORAGE_BEST, String(bestScore));
+      localStorage.setItem(STORAGE_DELIVERY, deliveryMethod);
+      localStorage.setItem(STORAGE_CHALLENGE, activeChallenge.id);
+      const phone = document.getElementById("mp-phone");
+      if (phone) localStorage.setItem(STORAGE_PHONE, phone.value);
+    }
+
+    function loadState() {
+      try {
+        const savedCart = JSON.parse(localStorage.getItem(STORAGE_CART) || "{}");
+        cart = savedCart && typeof savedCart === "object" ? savedCart : {};
+      } catch { cart = {}; }
+      bestScore = Number(localStorage.getItem(STORAGE_BEST) || 0) || 0;
+      const savedDelivery = localStorage.getItem(STORAGE_DELIVERY);
+      deliveryMethod = DELIVERY[savedDelivery] ? savedDelivery : "parcel";
+      const challengeId = localStorage.getItem(STORAGE_CHALLENGE);
+      activeChallenge = CHALLENGES.find((c) => c.id === challengeId) || CHALLENGES[0];
+    }
+
+    function showToast(message) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.remove("hidden");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.add("hidden"), 2200);
+    }
+
+    function isValidDkMobile(value) {
+      const digits = String(value || "").replace(/\D/g, "");
+      return digits.length === 8;
+    }
+
+    function addToCart(productId) {
+      cart[productId] = (cart[productId] || 0) + 1;
+      orderPlaced = false;
+      persistAndRender();
+      const p = getProduct(productId);
+      if (p) showToast(`Added ${p.name}`);
+    }
+
+    function removeFromCart(productId) {
+      if (!cart[productId]) return;
+      cart[productId] -= 1;
+      if (cart[productId] <= 0) delete cart[productId];
+      orderPlaced = false;
+      persistAndRender();
+    }
+
+    function setQty(productId, qty) {
+      const n = Math.max(0, Math.min(99, Number(qty) || 0));
+      if (n === 0) delete cart[productId];
+      else cart[productId] = n;
+      orderPlaced = false;
+      persistAndRender();
+    }
+
+    function clearBasket() {
+      cart = {};
+      orderPlaced = false;
+      lastOrderMeta = null;
+      persistAndRender();
+      showToast("Basket cleared");
+    }
+
+    function selectChallenge(challengeId) {
+      const next = CHALLENGES.find((c) => c.id === challengeId);
+      if (!next || next.id === activeChallenge.id) return;
+      activeChallenge = next;
+      orderPlaced = false;
+      persistAndRender();
+      showToast(`Challenge: ${activeChallenge.title}`);
+    }
+
+    function setDelivery(method) {
+      deliveryMethod = method;
+      orderPlaced = false;
+      persistAndRender();
+    }
+
+    function persistAndRender() {
+      const result = evaluateChallenge();
+      if (result.score > bestScore) bestScore = result.score;
+      saveState();
+      render(result);
+    }
+
+    function getRoute() {
+      const hash = (location.hash || "#shop").replace("#", "");
+      return ["shop", "checkout", "about", "contact"].includes(hash) ? hash : "shop";
+    }
+
+    function navigate() {
+      const route = getRoute();
+      document.querySelectorAll(".page").forEach((p) => p.classList.remove("is-active"));
+      const page = document.getElementById(`page-${route}`);
+      if (page) page.classList.add("is-active");
+
+      document.querySelectorAll(".nav-link").forEach((link) => {
+        link.classList.toggle("is-active", link.dataset.nav === route);
+      });
+
+      document.title = {
+        shop: "Basket Quest — Shop",
+        checkout: "Basket Quest — Checkout",
+        about: "Basket Quest — About",
+        contact: "Basket Quest — Contact",
+      }[route] || "Basket Quest";
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      render(evaluateChallenge());
+    }
+
+    function productCard(p, compact = false) {
+      const inCart = cart[p.id] || 0;
+      if (compact) {
+        return `
+          <article class="rounded-2xl border border-mist bg-cream/50 p-3 flex flex-col" data-product-id="${p.id}">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl" aria-hidden="true">${p.emoji}</span>
+              <div class="min-w-0 flex-1">
+                <p class="font-medium text-sm truncate">${p.name}</p>
+                <p class="text-xs text-forest font-semibold">${formatDKK(p.price)}</p>
+              </div>
+            </div>
+            <button type="button" data-add="${p.id}" class="mt-3 rounded-lg bg-forest text-cream text-xs font-medium py-2 hover:bg-forestSoft transition">
+              Quick add
+            </button>
+          </article>`;
+      }
+      return `
+        <article class="card-hover rounded-3xl bg-white border border-mist p-4 shadow-soft flex flex-col" data-product-id="${p.id}">
+          <div class="flex items-start justify-between gap-2">
+            <div class="h-14 w-14 rounded-2xl bg-mist/70 flex items-center justify-center text-3xl" aria-hidden="true">${p.emoji}</div>
+            <p class="font-semibold text-forest">${formatDKK(p.price)}</p>
+          </div>
+          <h3 class="mt-3 font-display text-lg leading-snug">${p.name}</h3>
+          <p class="mt-1 text-sm text-ink/60 flex-1">${p.description}</p>
+          <p class="mt-2 text-xs text-ink/45">${p.category}</p>
+          <div class="mt-2 flex flex-wrap gap-1.5">
+            ${p.tags.map((t) => `<span class="text-[11px] rounded-full bg-forest/8 text-forestSoft px-2 py-0.5">${t}</span>`).join("")}
+          </div>
+          <button type="button" data-add="${p.id}"
+            class="mt-4 rounded-xl bg-forest hover:bg-forestSoft text-cream text-sm font-medium py-2.5 transition">
+            ${inCart ? `Add another (${inCart})` : "Add to basket"}
+          </button>
+        </article>`;
+    }
+
+    function renderChallengePicker() {
+      const el = document.getElementById("challenge-picker");
+      el.innerHTML = CHALLENGES.map((c) => {
+        const selected = c.id === activeChallenge.id;
+        return `
+          <button type="button" data-challenge="${c.id}"
+            class="challenge-option text-left rounded-2xl border border-white/20 px-3 py-2.5 transition hover:bg-white/10 ${selected ? "is-selected" : ""}">
+            <span class="block text-sm font-semibold leading-snug">${c.title}</span>
+            <span class="block text-xs text-cream/70 mt-0.5">${c.short}</span>
+          </button>`;
+      }).join("");
+    }
+
+    function renderProducts() {
+      const list = PRODUCTS.filter((p) => activeCategory === "All" || p.category === activeCategory);
+      document.getElementById("product-grid").innerHTML = list.map((p) => productCard(p)).join("");
+    }
+
+    async function renderRecommendations() {
+      const picks = await getRecommendations(3);
+      const grid = document.getElementById("reco-grid");
+      if (!picks.length) {
+        grid.innerHTML = `<p class="text-sm text-ink/50 col-span-3">Add an item to unlock suggestions.</p>`;
+        return;
+      }
+      grid.innerHTML = picks.map((p) => productCard(p, true)).join("");
+    }
+
+    function renderCategoryFilters() {
+      const cats = ["All", ...new Set(PRODUCTS.map((p) => p.category))];
+      document.getElementById("category-filters").innerHTML = cats.map((c) => {
+        const active = c === activeCategory;
+        return `<button type="button" data-category="${c}"
+          class="rounded-full px-3 py-1.5 text-sm border transition ${
+            active ? "bg-forest text-cream border-forest" : "bg-white text-ink/70 border-mist hover:border-forest/40"
+          }">${c}</button>`;
+      }).join("");
+    }
+
+    function renderCartLines(targetId, withControls) {
+      const wrap = document.getElementById(targetId);
+      const lines = getCartLines();
+      if (!lines.length) {
+        wrap.innerHTML = `<p class="text-sm text-ink/50">Your basket is empty.</p>`;
+        return;
+      }
+      wrap.innerHTML = lines.map(({ product, qty }) => `
+        <div class="rounded-2xl border border-mist p-3 flex gap-3 items-center" data-product-id="${product.id}">
+          <div class="text-2xl w-10 text-center" aria-hidden="true">${product.emoji}</div>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium truncate">${product.name}</p>
+            <p class="text-xs text-ink/50">${formatDKK(product.price)} each</p>
+            ${withControls ? `
+              <div class="mt-2 flex items-center gap-2">
+                <button type="button" data-dec="${product.id}" class="h-8 w-8 rounded-lg border border-mist hover:bg-mist/60" aria-label="Decrease">−</button>
+                <input type="number" min="0" max="99" value="${qty}" data-qty="${product.id}"
+                  class="w-12 text-center rounded-lg border border-mist py-1 text-sm" aria-label="Quantity for ${product.name}" />
+                <button type="button" data-inc="${product.id}" class="h-8 w-8 rounded-lg border border-mist hover:bg-mist/60" aria-label="Increase">+</button>
+                <button type="button" data-remove="${product.id}" class="ml-auto text-xs text-coral hover:underline">Remove</button>
+              </div>` : `<p class="text-xs text-ink/55 mt-1">Qty ${qty}</p>`}
+          </div>
+          <p class="font-medium whitespace-nowrap">${formatDKK(product.price * qty)}</p>
+        </div>
+      `).join("");
+    }
+
+    function renderDelivery() {
+      const el = document.getElementById("delivery-options");
+      if (!el) return;
+      const subtotal = getSubtotal();
+      const options = [
+        { ...DELIVERY.parcel, note: subtotal >= FREE_PARCEL_THRESHOLD ? "Free unlocked" : `${formatDKK(FREE_PARCEL_THRESHOLD - subtotal)} to free` },
+        { ...DELIVERY.home, note: "Next-day window" },
+        { ...DELIVERY.collect, note: "Ready in store" },
+      ];
+      el.innerHTML = options.map((opt) => {
+        const checked = deliveryMethod === opt.id;
+        const priceLabel = opt.id === "parcel" && subtotal >= FREE_PARCEL_THRESHOLD ? "Free" : formatDKK(opt.price);
+        return `
+          <label class="flex items-center gap-3 rounded-2xl border px-3 py-2.5 cursor-pointer transition ${
+            checked ? "border-forest bg-forest/5" : "border-mist hover:border-forest/30"
+          }">
+            <input type="radio" name="delivery" value="${opt.id}" class="accent-[#1F4D3A]" ${checked ? "checked" : ""} />
+            <span class="flex-1">
+              <span class="block text-sm font-medium">${opt.label}</span>
+              <span class="block text-xs text-ink/50">${opt.note}</span>
+            </span>
+            <span class="text-sm font-medium">${priceLabel}</span>
+          </label>`;
+      }).join("");
+
+      const remaining = Math.max(FREE_PARCEL_THRESHOLD - subtotal, 0);
+      document.getElementById("free-shipping-note").textContent =
+        remaining > 0
+          ? `Add ${formatDKK(remaining)} more for free parcel-shop delivery.`
+          : "Free parcel-shop delivery unlocked.";
+    }
+
+    function renderChallenge(result) {
+      document.getElementById("challenge-title").textContent = activeChallenge.title;
+      document.getElementById("challenge-brief").textContent = activeChallenge.brief;
+      document.getElementById("live-score").innerHTML = `${result.score}<span class="text-lg text-cream/70">/100</span>`;
+      document.getElementById("score-bar").style.width = `${result.score}%`;
+      document.getElementById("best-score").textContent = String(bestScore);
+      document.getElementById("score-hint").textContent = result.complete
+        ? "Challenge complete — continue to checkout when ready."
+        : "Score updates as your basket changes.";
+
+      const checks = [
+        { ok: result.withinBudget && result.itemCount > 0, label: `Budget under ${formatDKK(activeChallenge.budget)}` },
+        { ok: result.enoughItems, label: `At least ${activeChallenge.minItems} products` },
+        ...result.tagResults.map((t) => ({ ok: t.ok, label: `Includes ${t.tag}` })),
+      ];
+      if (activeChallenge.requireFreeParcel) {
+        checks.push({ ok: result.freeParcelUnlocked, label: "Free parcel-shop delivery" });
+      }
+      document.getElementById("challenge-checks").innerHTML = checks.map((c) => `
+        <li class="flex items-center gap-2">
+          <span class="inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
+            c.ok ? "bg-cream text-forest" : "bg-white/15 text-cream/70"
+          }">${c.ok ? "✓" : "·"}</span>
+          <span class="${c.ok ? "text-cream" : "text-cream/75"}">${c.label}</span>
+        </li>`).join("");
+
+      renderChallengePicker();
+    }
+
+    function renderFeedback(result, targetId) {
+      const list = document.getElementById(targetId);
+      if (!list) return;
+      const unique = [...new Set(result.feedback)];
+      list.innerHTML = unique.map((msg) => {
+        const good = /unlocked|met|nice basket/i.test(msg);
+        return `<p class="text-sm rounded-xl px-3 py-2 border ${
+          good ? "bg-forest/8 border-forest/20 text-forest" : "bg-mist/50 border-mist text-ink/75"
+        }">${msg}</p>`;
+      }).join("");
+    }
+
+    function updateCheckoutSteps() {
+      const hasItems = getItemCount() > 0;
+      const s1 = document.getElementById("step-1-dot");
+      const s2 = document.getElementById("step-2-dot");
+      const s3 = document.getElementById("step-3-dot");
+      [s1, s2, s3].forEach((el) => el.classList.remove("is-done", "is-current"));
+      if (orderPlaced) {
+        s1.classList.add("is-done");
+        s2.classList.add("is-done");
+        s3.classList.add("is-current");
+      } else if (hasItems) {
+        s1.classList.add("is-done");
+        s2.classList.add("is-current");
+      } else {
+        s1.classList.add("is-current");
+      }
+    }
+
+    function renderCheckout(result) {
+      const empty = getItemCount() === 0 && !orderPlaced;
+      document.getElementById("checkout-empty").classList.toggle("hidden", !empty);
+      document.getElementById("checkout-flow").classList.toggle("hidden", empty || orderPlaced);
+      document.getElementById("checkout-success").classList.toggle("hidden", !orderPlaced);
+      updateCheckoutSteps();
+
+      const total = getTotal();
+      document.getElementById("mp-amount").textContent = formatDKK(total);
+
+      if (orderPlaced && lastOrderMeta) {
+        document.getElementById("success-order-id").textContent =
+          `Order ${lastOrderMeta.id} · ${lastOrderMeta.deliveryLabel} · Paid with MobilePay`;
+        document.getElementById("success-score").textContent = `${lastOrderMeta.score}/100`;
+        document.getElementById("success-summary").textContent = lastOrderMeta.summary;
+        return;
+      }
+      if (empty) return;
+
+      renderCartLines("checkout-lines", true);
+      renderDelivery();
+      document.getElementById("subtotal").textContent = formatDKK(getSubtotal());
+      document.getElementById("delivery-cost").textContent = formatDKK(getDeliveryCost());
+      document.getElementById("total").textContent = formatDKK(total);
+      document.getElementById("checkout-score").textContent = `${result.score}/100`;
+      renderFeedback(result, "feedback-list");
+
+      const agree = document.getElementById("checkout-agree");
+      const phone = document.getElementById("mp-phone").value;
+      const btn = document.getElementById("btn-place-order");
+      btn.disabled = !agree.checked || getItemCount() === 0 || !isValidDkMobile(phone);
+    }
+
+    function renderShopSide(result) {
+      document.getElementById("item-count").textContent = `${getItemCount()} item${getItemCount() === 1 ? "" : "s"}`;
+      document.getElementById("nav-cart-count").textContent = String(getItemCount());
+      renderCartLines("cart-items", true);
+      document.getElementById("side-subtotal").textContent = formatDKK(getSubtotal());
+      document.getElementById("side-delivery").textContent = formatDKK(getDeliveryCost());
+      document.getElementById("side-total").textContent = formatDKK(getTotal());
+      document.getElementById("side-feedback").textContent = result.feedback[0] || "";
+    }
+
+    function render(result = evaluateChallenge()) {
+      renderCategoryFilters();
+      renderProducts();
+      renderRecommendations();
+      renderChallenge(result);
+      renderShopSide(result);
+      if (getRoute() === "checkout") renderCheckout(result);
+    }
+
+    function placeOrder() {
+      const agree = document.getElementById("checkout-agree");
+      const phone = document.getElementById("mp-phone").value;
+      if (!agree.checked || getItemCount() === 0 || !isValidDkMobile(phone)) {
+        showToast("Enter an 8-digit Danish mobile number");
+        return;
+      }
+
+      const result = evaluateChallenge();
+      const tagText = activeChallenge.requiredTags.join(" + ");
+      lastOrderMeta = {
+        id: `BQ-${Date.now().toString().slice(-6)}`,
+        score: result.score,
+        deliveryLabel: DELIVERY[deliveryMethod].label,
+        summary:
+          `You ordered ${getItemCount()} products for ${formatDKK(getTotal())}. ` +
+          (result.complete
+            ? `Challenge “${activeChallenge.title}” completed (${tagText}).`
+            : `Challenge score ${result.score}/100 — try another challenge to improve.`),
+      };
+      orderPlaced = true;
+      cart = {};
+      saveState();
+      if (result.score > bestScore) {
+        bestScore = result.score;
+        localStorage.setItem(STORAGE_BEST, String(bestScore));
+      }
+      document.getElementById("checkout-agree").checked = false;
+      showToast("Payment approved with MobilePay");
+      render(evaluateChallenge());
+    }
+
+    function bindEvents() {
+      document.getElementById("btn-clear-basket").addEventListener("click", clearBasket);
+      document.getElementById("btn-place-order").addEventListener("click", placeOrder);
+      document.getElementById("checkout-agree").addEventListener("change", () => renderCheckout(evaluateChallenge()));
+      document.getElementById("mp-phone").addEventListener("input", () => {
+        localStorage.setItem(STORAGE_PHONE, document.getElementById("mp-phone").value);
+        renderCheckout(evaluateChallenge());
+      });
+
+      document.getElementById("btn-shop-again").addEventListener("click", () => {
+        orderPlaced = false;
+        lastOrderMeta = null;
+        location.hash = "shop";
+      });
+
+      document.getElementById("challenge-picker").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-challenge]");
+        if (!btn) return;
+        selectChallenge(btn.dataset.challenge);
+      });
+
+      document.getElementById("category-filters").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-category]");
+        if (!btn) return;
+        activeCategory = btn.dataset.category;
+        render();
+      });
+
+      document.body.addEventListener("click", (e) => {
+        const add = e.target.closest("[data-add]");
+        const inc = e.target.closest("[data-inc]");
+        const dec = e.target.closest("[data-dec]");
+        const remove = e.target.closest("[data-remove]");
+        if (add) addToCart(add.dataset.add);
+        if (inc) addToCart(inc.dataset.inc);
+        if (dec) removeFromCart(dec.dataset.dec);
+        if (remove) {
+          delete cart[remove.dataset.remove];
+          orderPlaced = false;
+          persistAndRender();
+        }
+      });
+
+      document.body.addEventListener("change", (e) => {
+        const input = e.target.closest("[data-qty]");
+        if (input) setQty(input.dataset.qty, input.value);
+        if (e.target.name === "delivery") setDelivery(e.target.value);
+      });
+
+      document.getElementById("contact-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("contact-name").value.trim();
+        const email = document.getElementById("contact-email").value.trim();
+        const topic = document.getElementById("contact-topic").value;
+        const message = document.getElementById("contact-message").value.trim();
+        const status = document.getElementById("contact-status");
+
+        if (!name || !email || !message) {
+          status.textContent = "Please fill in name, email, and message.";
+          status.className = "text-sm text-center text-coral";
+          return;
+        }
+
+        const payload = { name, email, topic, message, at: new Date().toISOString() };
+        const prev = JSON.parse(localStorage.getItem(STORAGE_CONTACT) || "[]");
+        prev.push(payload);
+        localStorage.setItem(STORAGE_CONTACT, JSON.stringify(prev));
+
+        e.target.reset();
+        status.textContent = "Thanks — we’ve received your message and will get back to you soon.";
+        status.className = "text-sm text-center text-forest";
+        showToast("Message sent");
+      });
+
+      window.addEventListener("hashchange", navigate);
+    }
+
+    loadState();
+    bindEvents();
+    const savedPhone = localStorage.getItem(STORAGE_PHONE);
+    if (savedPhone) document.getElementById("mp-phone").value = savedPhone;
+    if (!location.hash) location.hash = "shop";
+    navigate();
+  </script>
+</body>
+</html>
