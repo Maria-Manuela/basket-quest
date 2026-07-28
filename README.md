@@ -1,45 +1,35 @@
 # Basket Quest
 
-Interactive shopping-basket planner. Pick a challenge, build a basket within budget and tags, get live recommendations, check out with MobilePay, and earn Quest Points on your profile.
+Interactive shopping-basket planner. Pick a challenge, build a basket within budget, get live offers, check out with common payment methods (including MobilePay), and earn Quest Points on your profile.
 
 ## Features
 
-- Challenge picker with live scoring and progress
-- Product catalogue with categories and tags
-- Basket with quantity controls and free parcel-shop delivery threshold
-- Recommendations based on your current basket
-- Account login / sign-up with profile and Quest Points
-- Checkout with delivery options and MobilePay
-- About and Contact pages
-- Cart, session, and profile data saved in the browser (`localStorage`)
+- Challenge picker with live scoring and budget warnings
+- Budget-aware product recommendations / offers
+- Multi-page site: Shop, About (interactive vendors), Contact
+- Account login with profile and Quest Points
+- Checkout appears in the nav only when the basket has items
+- Payment methods: Card, MobilePay, Apple Pay, Google Pay
+- Cart and profile data saved in the browser (`localStorage`)
 
 ## Run locally
-
-No build step required.
 
 ```bash
 npm start
 ```
 
-Then open [http://localhost:5173](http://localhost:5173).
-
-Or open `index.html` directly in your browser (use a local server if scripts are blocked).
-
-## Stack
-
-- HTML
-- Vanilla JavaScript
-- Tailwind CSS (CDN)
-- Custom CSS (`styles.css`)
+Open [http://localhost:5173](http://localhost:5173).
 
 ## Project structure
 
 ```
 basket-quest/
-├── index.html      # Pages and markup
-├── styles.css      # Custom styles
+├── index.html      # Shop, checkout, login, profile
+├── about.html      # About + interactive vendors
+├── contact.html    # Contact form
+├── styles.css      # Shared styles
 ├── js/
-│   └── app.js      # App logic (cart, scoring, auth, checkout)
-├── package.json    # Local static server script
+│   └── app.js      # Shared app logic
+├── package.json
 └── README.md
 ```

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basket Quest — Contact</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: "#F7F4EF", forest: "#1F4D3A", forestSoft: "#2F6B52",
+            coral: "#D9785F", ink: "#1C2421", mist: "#E8E2D8",
+            mobilepay: "#5A78FF", mobilepayDark: "#3D5BE0",
+          },
+          fontFamily: {
+            display: ['"Fraunces"', "Georgia", "serif"],
+            body: ['"Source Sans 3"', "system-ui", "sans-serif"],
+          },
+          boxShadow: { soft: "0 10px 30px rgba(28, 36, 33, 0.08)" },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-cream text-ink min-h-screen flex flex-col" data-page="contact">
+  <div id="site-header"></div>
+
+  <main class="flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 py-10">
+    <div class="fade-in">
+      <p class="text-xs uppercase tracking-[0.16em] text-forest/60">Contact</p>
+      <h1 class="font-display text-3xl sm:text-4xl text-forest mt-1">We’re here to help</h1>
+      <p class="mt-2 text-ink/65">Questions about your order, delivery, payment, or a challenge? Send us a message.</p>
+
+      <form id="contact-form" class="mt-8 rounded-[1.75rem] bg-white border border-mist p-6 sm:p-8 shadow-soft space-y-5" novalidate>
+        <div class="form-field">
+          <label for="contact-name" class="block text-sm font-semibold mb-1.5">Name</label>
+          <input id="contact-name" name="name" required autocomplete="name" placeholder="e.g. Anna Nielsen" />
+        </div>
+        <div class="form-field">
+          <label for="contact-email" class="block text-sm font-semibold mb-1.5">Email</label>
+          <input id="contact-email" name="email" type="email" required autocomplete="email" placeholder="anna@email.dk" />
+        </div>
+        <div class="form-field">
+          <label for="contact-topic" class="block text-sm font-semibold mb-1.5">Topic</label>
+          <select id="contact-topic" name="topic">
+            <option>Order or delivery status</option>
+            <option>Product availability</option>
+            <option>Challenge or scoring help</option>
+            <option>Payment question</option>
+            <option>Account or Quest Points</option>
+            <option>Return or exchange</option>
+            <option>Something else</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="contact-message" class="block text-sm font-semibold mb-1.5">Message</label>
+          <textarea id="contact-message" name="message" rows="5" required
+            placeholder="Include your order number if you have one…"></textarea>
+        </div>
+        <button type="submit"
+          class="w-full rounded-xl bg-forest hover:bg-forestSoft text-cream font-semibold py-3.5 transition shadow-soft">
+          Send message
+        </button>
+        <p id="contact-status" class="text-sm text-center text-ink/55" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden rounded-2xl bg-ink text-cream px-4 py-3 text-sm shadow-soft" role="status"></div>
+  <script src="js/app.js?v=6" defer></script>
+</body>
+</html>

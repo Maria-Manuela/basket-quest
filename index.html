@@ -10,22 +10,15 @@
       theme: {
         extend: {
           colors: {
-            cream: "#F7F4EF",
-            forest: "#1F4D3A",
-            forestSoft: "#2F6B52",
-            coral: "#D9785F",
-            ink: "#1C2421",
-            mist: "#E8E2D8",
-            mobilepay: "#5A78FF",
-            mobilepayDark: "#3D5BE0",
+            cream: "#F7F4EF", forest: "#1F4D3A", forestSoft: "#2F6B52",
+            coral: "#D9785F", ink: "#1C2421", mist: "#E8E2D8",
+            mobilepay: "#5A78FF", mobilepayDark: "#3D5BE0",
           },
           fontFamily: {
             display: ['"Fraunces"', "Georgia", "serif"],
             body: ['"Source Sans 3"', "system-ui", "sans-serif"],
           },
-          boxShadow: {
-            soft: "0 10px 30px rgba(28, 36, 33, 0.08)",
-          },
+          boxShadow: { soft: "0 10px 30px rgba(28, 36, 33, 0.08)" },
         },
       },
     };
@@ -35,56 +28,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg-cream text-ink min-h-screen flex flex-col">
-  <header class="border-b border-mist bg-cream/95 backdrop-blur sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <a href="#shop" class="group" data-nav="shop">
-          <p class="font-display text-2xl sm:text-3xl text-forest tracking-tight group-hover:opacity-90">Basket Quest</p>
-          <p class="text-sm text-ink/70 mt-0.5 hidden sm:block">Build smarter baskets for everyday shopping</p>
-        </a>
-
-        <nav class="flex flex-wrap items-center gap-1 sm:gap-2" aria-label="Main">
-          <a href="#shop" data-nav="shop" class="nav-link rounded-xl px-3 py-2 text-sm font-medium text-ink/70 hover:text-forest transition">Shop</a>
-          <a href="#about" data-nav="about" class="nav-link rounded-xl px-3 py-2 text-sm font-medium text-ink/70 hover:text-forest transition">About</a>
-          <a href="#contact" data-nav="contact" class="nav-link rounded-xl px-3 py-2 text-sm font-medium text-ink/70 hover:text-forest transition">Contact</a>
-          <a href="#checkout" data-nav="checkout"
-            class="nav-link ml-1 inline-flex items-center gap-2 rounded-xl bg-forest text-cream px-3 py-2 text-sm font-medium hover:bg-forestSoft transition">
-            Checkout
-            <span id="nav-cart-count" class="rounded-full bg-cream/20 px-2 py-0.5 text-xs">0</span>
-          </a>
-        </nav>
-
-        <div class="flex items-center gap-2 sm:gap-3">
-          <div class="rounded-2xl bg-white border border-mist px-3 py-2 shadow-soft hidden sm:block">
-            <p class="text-[10px] uppercase tracking-wide text-ink/50">Best score</p>
-            <p id="best-score" class="font-display text-lg leading-none text-forest">0</p>
-          </div>
-
-          <div id="auth-guest" class="flex items-center gap-2">
-            <a href="#login" data-nav="login"
-              class="nav-link rounded-xl border border-forest/20 bg-white px-3 py-2 text-sm font-medium text-forest hover:bg-forest/5 transition">
-              Log in
-            </a>
-          </div>
-
-          <div id="auth-user" class="hidden items-center gap-2">
-            <a href="#profile" data-nav="profile"
-              class="nav-link flex items-center gap-2 rounded-2xl border border-mist bg-white px-2.5 py-1.5 shadow-soft hover:border-forest/30 transition">
-              <span id="nav-avatar" class="h-8 w-8 rounded-full bg-forest text-cream text-xs font-bold flex items-center justify-center">BQ</span>
-              <span class="hidden sm:block text-left">
-                <span id="nav-user-name" class="block text-sm font-medium leading-tight">Member</span>
-                <span class="block text-[11px] text-ink/50"><span id="nav-user-points">0</span> pts</span>
-              </span>
-            </a>
-            <button id="btn-logout" type="button" class="rounded-xl px-2.5 py-2 text-xs font-medium text-ink/55 hover:text-coral transition">
-              Log out
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
+<body class="bg-cream text-ink min-h-screen flex flex-col" data-page="shop">
+  <div id="site-header"></div>
 
   <!-- SHOP -->
   <main id="page-shop" class="page flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 lg:py-8">
@@ -96,14 +41,13 @@
               <p class="text-xs uppercase tracking-[0.16em] text-cream/70">Your challenge</p>
               <h1 id="challenge-title" class="font-display text-2xl sm:text-3xl mt-1 leading-tight"></h1>
             </div>
-            <button id="btn-clear-basket" type="button" class="rounded-xl bg-coral/90 hover:bg-coral px-3 py-2 text-sm font-medium transition">
-              Clear basket
-            </button>
+            <button id="btn-clear-basket" type="button" class="rounded-xl bg-coral/90 hover:bg-coral px-3 py-2 text-sm font-medium transition">Clear basket</button>
           </div>
           <p id="challenge-brief" class="mt-3 text-cream/85 max-w-2xl"></p>
+          <div id="budget-banner" class="mt-4 hidden rounded-2xl px-3 py-2 text-sm font-medium"></div>
 
           <div class="mt-5">
-            <p class="text-xs uppercase tracking-[0.14em] text-cream/70 mb-2">Choose a challenge</p>
+            <p class="text-xs uppercase tracking-[0.14em] text-cream/70 mb-2">Choose how you shop</p>
             <div id="challenge-picker" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-2"></div>
           </div>
 
@@ -125,8 +69,9 @@
 
         <section id="recommendations" class="rounded-3xl border border-forest/15 bg-white p-4 sm:p-5 shadow-soft">
           <div>
-            <p class="text-xs uppercase tracking-[0.14em] text-forest/60">Based on your basket</p>
-            <h2 class="font-display text-xl text-forest">Recommended for you</h2>
+            <p id="reco-eyebrow" class="text-xs uppercase tracking-[0.14em] text-forest/60">Based on your basket</p>
+            <h2 id="reco-title" class="font-display text-xl text-forest">Recommended for you</h2>
+            <p id="reco-subtitle" class="text-sm text-ink/55 mt-1"></p>
           </div>
           <div id="reco-grid" class="mt-4 grid sm:grid-cols-3 gap-3"></div>
         </section>
@@ -135,7 +80,6 @@
           <p class="text-sm font-medium text-ink/60 mr-1">Categories</p>
           <div id="category-filters" class="flex flex-wrap gap-2"></div>
         </div>
-
         <div id="product-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
       </section>
 
@@ -154,8 +98,9 @@
               <div class="flex justify-between text-ink/55"><dt>Est. delivery</dt><dd id="side-delivery">DKK 0</dd></div>
               <div class="flex justify-between font-semibold text-base"><dt>Total</dt><dd id="side-total">DKK 0</dd></div>
             </dl>
+            <div id="side-budget" class="mt-3 hidden rounded-xl px-3 py-2 text-sm font-medium"></div>
             <p id="side-feedback" class="mt-3 text-sm text-ink/65"></p>
-            <a href="#checkout"
+            <a href="#checkout" id="side-checkout-btn"
               class="mt-4 flex w-full items-center justify-center rounded-xl bg-forest hover:bg-forestSoft text-cream font-medium py-3 transition">
               Go to checkout
             </a>
@@ -170,19 +115,13 @@
     <div class="fade-in">
       <p class="text-xs uppercase tracking-[0.16em] text-forest/60">Checkout</p>
       <h1 class="font-display text-3xl sm:text-4xl text-forest mt-1">Complete your order</h1>
-      <p class="mt-2 text-ink/65 max-w-2xl">Review your basket, choose delivery, and pay with MobilePay.</p>
+      <p class="mt-2 text-ink/65 max-w-2xl">Review your basket, choose delivery, and pick a payment method.</p>
 
       <ol class="mt-6 flex flex-wrap gap-3" aria-label="Checkout steps">
         <li class="flex items-center gap-2 text-sm"><span id="step-1-dot" class="step-dot is-current h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold bg-mist">1</span> Basket</li>
         <li class="flex items-center gap-2 text-sm"><span id="step-2-dot" class="step-dot h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold bg-mist">2</span> Delivery & pay</li>
         <li class="flex items-center gap-2 text-sm"><span id="step-3-dot" class="step-dot h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold bg-mist">3</span> Confirmed</li>
       </ol>
-
-      <div id="checkout-login-gate" class="hidden mt-8 rounded-3xl bg-white border border-mist p-8 text-center shadow-soft">
-        <p class="font-display text-2xl text-forest">Log in to checkout</p>
-        <p class="mt-2 text-ink/60">Create an account or sign in to pay and earn Quest Points on every order.</p>
-        <a href="#login" class="inline-flex mt-5 rounded-xl bg-forest text-cream px-5 py-3 font-medium hover:bg-forestSoft transition">Go to login</a>
-      </div>
 
       <div id="checkout-empty" class="hidden mt-8 rounded-3xl bg-white border border-mist p-8 text-center shadow-soft">
         <p class="font-display text-2xl text-forest">Your basket is empty</p>
@@ -192,9 +131,12 @@
 
       <div id="checkout-flow" class="mt-8 grid lg:grid-cols-5 gap-6">
         <div class="lg:col-span-3 space-y-4">
+          <section id="checkout-account-upsell" class="rounded-3xl bg-forest/5 border border-forest/15 p-5 shadow-soft"></section>
+
           <section class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
             <h2 class="font-display text-xl text-forest">Order summary</h2>
             <div id="checkout-lines" class="mt-4 space-y-3"></div>
+            <div id="checkout-budget" class="mt-3 hidden rounded-xl px-3 py-2 text-sm font-medium"></div>
           </section>
 
           <section class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
@@ -205,33 +147,9 @@
 
           <section class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
             <h2 class="font-display text-xl text-forest">Payment</h2>
-            <p class="mt-1 text-sm text-ink/60">Pay securely with MobilePay.</p>
-
-            <div class="mt-4 rounded-2xl border-2 border-mobilepay bg-[#F4F6FF] overflow-hidden">
-              <div class="flex items-center gap-3 px-4 py-3 bg-white border-b border-[#DCE3FF]">
-                <span class="h-5 w-5 rounded-full border-[6px] border-mobilepay bg-white shrink-0" aria-hidden="true"></span>
-                <div class="flex items-center gap-2 min-w-0">
-                  <div class="mp-mark h-9 w-9 rounded-xl flex items-center justify-center text-white font-bold text-xs tracking-tight">MP</div>
-                  <div>
-                    <p class="font-semibold text-[#1B2A4A]">MobilePay</p>
-                    <p class="text-xs text-[#5A6A8A]">Denmark’s favourite way to pay</p>
-                  </div>
-                </div>
-                <p id="mp-amount" class="ml-auto font-semibold text-[#1B2A4A]">DKK 0</p>
-              </div>
-              <div class="px-4 py-4 space-y-3">
-                <label class="block">
-                  <span class="text-xs font-medium text-[#5A6A8A]">MobilePay phone number</span>
-                  <div class="mt-1 flex rounded-xl overflow-hidden border border-[#C9D3F5] bg-white focus-within:border-mobilepay">
-                    <span class="px-3 py-2.5 text-sm text-[#5A6A8A] bg-[#EEF2FF] border-r border-[#C9D3F5]">+45</span>
-                    <input id="mp-phone" type="tel" inputmode="numeric" placeholder="12 34 56 78" maxlength="11"
-                      class="flex-1 px-3 py-2.5 text-sm outline-none" autocomplete="tel-national" />
-                  </div>
-                </label>
-                <p class="text-xs text-[#5A6A8A]">Open the MobilePay app on your phone to approve the payment when prompted.</p>
-              </div>
-            </div>
-
+            <p class="mt-1 text-sm text-ink/60">Choose how you’d like to pay.</p>
+            <div id="payment-methods" class="mt-4 space-y-2"></div>
+            <div id="payment-panels" class="mt-4"></div>
             <label class="mt-4 flex items-start gap-3 text-sm">
               <input id="checkout-agree" type="checkbox" class="mt-1 accent-[#1F4D3A]" />
               <span>I confirm my basket and delivery details are correct.</span>
@@ -250,15 +168,14 @@
               </div>
             </dl>
             <div class="mt-4 rounded-2xl bg-forest/5 border border-forest/10 p-3">
-              <p class="text-xs text-ink/50">Challenge score</p>
+              <p class="text-xs text-ink/50">Basket score</p>
               <p id="checkout-score" class="font-display text-3xl text-forest">0/100</p>
-              <p class="text-xs text-ink/50 mt-1">Earn these as Quest Points on your profile.</p>
+              <p id="checkout-score-hint" class="text-xs text-ink/50 mt-1">Create an account to turn this into Quest Points.</p>
             </div>
             <div id="feedback-list" class="mt-4 space-y-2"></div>
             <button id="btn-place-order" type="button"
-              class="mt-5 w-full rounded-xl bg-mobilepay hover:bg-mobilepayDark text-white font-semibold py-3.5 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-              <span class="inline-flex h-6 w-6 items-center justify-center rounded-md bg-white/20 text-[10px] font-bold">MP</span>
-              Pay with MobilePay
+              class="mt-5 w-full rounded-xl bg-forest hover:bg-forestSoft text-white font-semibold py-3.5 transition disabled:opacity-40 disabled:cursor-not-allowed">
+              Pay now
             </button>
             <a href="#shop" class="mt-3 block text-center text-sm text-forest hover:underline">Continue shopping</a>
           </section>
@@ -284,8 +201,8 @@
   <main id="page-login" class="page flex-1 max-w-md mx-auto w-full px-4 sm:px-6 py-10">
     <div class="fade-in">
       <p class="text-xs uppercase tracking-[0.16em] text-forest/60">Account</p>
-      <h1 class="font-display text-3xl sm:text-4xl text-forest mt-1">Welcome back</h1>
-      <p class="mt-2 text-ink/65">Log in or create an account to track Quest Points and your shopping profile.</p>
+      <h1 class="font-display text-3xl sm:text-4xl text-forest mt-1">Your account</h1>
+      <p class="mt-2 text-ink/65">Log in or create an account to save Quest Points and track your shopping profile.</p>
 
       <div class="mt-6 flex rounded-2xl bg-mist/60 p-1 gap-1">
         <button type="button" id="tab-login" class="auth-tab is-active flex-1 rounded-xl px-3 py-2 text-sm font-medium transition">Log in</button>
@@ -293,35 +210,30 @@
       </div>
 
       <form id="login-form" class="mt-6 rounded-3xl bg-white border border-mist p-6 shadow-soft space-y-4">
-        <div>
+        <div class="form-field">
           <label for="login-email" class="block text-sm font-medium mb-1">Email</label>
-          <input id="login-email" type="email" required autocomplete="email"
-            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition" />
+          <input id="login-email" type="email" required autocomplete="email" placeholder="you@email.dk" />
         </div>
-        <div>
+        <div class="form-field">
           <label for="login-password" class="block text-sm font-medium mb-1">Password</label>
-          <input id="login-password" type="password" required autocomplete="current-password" minlength="4"
-            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition" />
+          <input id="login-password" type="password" required autocomplete="current-password" minlength="4" placeholder="Your password" />
         </div>
         <button type="submit" class="w-full rounded-xl bg-forest hover:bg-forestSoft text-cream font-medium py-3 transition">Log in</button>
         <p id="login-status" class="text-sm text-center text-ink/55" role="status"></p>
       </form>
 
       <form id="signup-form" class="hidden mt-6 rounded-3xl bg-white border border-mist p-6 shadow-soft space-y-4">
-        <div>
+        <div class="form-field">
           <label for="signup-name" class="block text-sm font-medium mb-1">Name</label>
-          <input id="signup-name" type="text" required autocomplete="name"
-            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition" />
+          <input id="signup-name" type="text" required autocomplete="name" placeholder="e.g. Anna Nielsen" />
         </div>
-        <div>
+        <div class="form-field">
           <label for="signup-email" class="block text-sm font-medium mb-1">Email</label>
-          <input id="signup-email" type="email" required autocomplete="email"
-            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition" />
+          <input id="signup-email" type="email" required autocomplete="email" placeholder="anna@email.dk" />
         </div>
-        <div>
+        <div class="form-field">
           <label for="signup-password" class="block text-sm font-medium mb-1">Password</label>
-          <input id="signup-password" type="password" required autocomplete="new-password" minlength="4"
-            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition" />
+          <input id="signup-password" type="password" required autocomplete="new-password" minlength="4" placeholder="Create a password" />
         </div>
         <button type="submit" class="w-full rounded-xl bg-forest hover:bg-forestSoft text-cream font-medium py-3 transition">Create account</button>
         <p id="signup-status" class="text-sm text-center text-ink/55" role="status"></p>
@@ -333,8 +245,8 @@
   <main id="page-profile" class="page flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-10">
     <div class="fade-in">
       <div id="profile-guest" class="rounded-3xl bg-white border border-mist p-8 text-center shadow-soft">
-        <p class="font-display text-2xl text-forest">Your profile awaits</p>
-        <p class="mt-2 text-ink/60">Log in to collect Quest Points, track best scores, and see your order history.</p>
+        <p class="font-display text-2xl text-forest">Log in to view your profile</p>
+        <p class="mt-2 text-ink/60">Collect Quest Points, track best scores, and see your order history.</p>
         <a href="#login" class="inline-flex mt-5 rounded-xl bg-forest text-cream px-5 py-3 font-medium hover:bg-forestSoft transition">Log in</a>
       </div>
 
@@ -354,7 +266,7 @@
 
         <div class="grid sm:grid-cols-3 gap-4">
           <div class="profile-stat">
-            <p class="text-xs uppercase tracking-wide text-ink/45">Best basket score</p>
+            <p class="text-xs uppercase tracking-wide text-ink/45">Under-budget orders</p>
             <p id="profile-best" class="font-display text-3xl text-forest mt-1">0</p>
           </div>
           <div class="profile-stat">
@@ -368,6 +280,11 @@
         </div>
 
         <section class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
+          <h2 class="font-display text-xl text-forest">Quest Point rewards</h2>
+          <div id="profile-perks" class="mt-3"></div>
+        </section>
+
+        <section class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
           <h2 class="font-display text-xl text-forest">Recent activity</h2>
           <div id="profile-history" class="mt-4 space-y-3">
             <p class="text-sm text-ink/50">No orders yet — complete a challenge and checkout to earn points.</p>
@@ -377,96 +294,8 @@
     </div>
   </main>
 
-  <!-- ABOUT -->
-  <main id="page-about" class="page flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-10">
-    <article class="fade-in space-y-6">
-      <div>
-        <p class="text-xs uppercase tracking-[0.16em] text-forest/60">About</p>
-        <h1 class="font-display text-3xl sm:text-4xl text-forest mt-1">Shop with a goal, not a guess</h1>
-      </div>
-      <p class="text-lg text-ink/75 leading-relaxed">
-        Basket Quest helps you build better shopping baskets. Pick a challenge — gift under budget, organic breakfast, sustainable restock —
-        then choose products that fit the brief while we track score, delivery savings, and recommendations as you go.
-      </p>
-      <div class="grid sm:grid-cols-3 gap-4">
-        <div class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
-          <p class="text-2xl" aria-hidden="true">🎯</p>
-          <h2 class="font-display text-lg text-forest mt-2">Guided challenges</h2>
-          <p class="text-sm text-ink/65 mt-1">Clear goals for budget, product count, and product tags.</p>
-        </div>
-        <div class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
-          <p class="text-2xl" aria-hidden="true">⭐</p>
-          <h2 class="font-display text-lg text-forest mt-2">Quest Points</h2>
-          <p class="text-sm text-ink/65 mt-1">Log in, complete orders, and grow your profile score.</p>
-        </div>
-        <div class="rounded-3xl bg-white border border-mist p-5 shadow-soft">
-          <p class="text-2xl" aria-hidden="true">🚚</p>
-          <h2 class="font-display text-lg text-forest mt-2">Smarter checkout</h2>
-          <p class="text-sm text-ink/65 mt-1">Parcel shop, home delivery, or click & collect — with MobilePay.</p>
-        </div>
-      </div>
-    </article>
-  </main>
-
-  <!-- CONTACT -->
-  <main id="page-contact" class="page flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 py-10">
-    <div class="fade-in">
-      <p class="text-xs uppercase tracking-[0.16em] text-forest/60">Contact</p>
-      <h1 class="font-display text-3xl sm:text-4xl text-forest mt-1">We’re here to help</h1>
-      <p class="mt-2 text-ink/65">Questions about your order, delivery, or a challenge? Send us a message.</p>
-
-      <form id="contact-form" class="mt-8 rounded-3xl bg-white border border-mist p-6 shadow-soft space-y-4" novalidate>
-        <div>
-          <label for="contact-name" class="block text-sm font-medium mb-1">Name</label>
-          <input id="contact-name" name="name" required autocomplete="name"
-            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition" />
-        </div>
-        <div>
-          <label for="contact-email" class="block text-sm font-medium mb-1">Email</label>
-          <input id="contact-email" name="email" type="email" required autocomplete="email"
-            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition" />
-        </div>
-        <div>
-          <label for="contact-topic" class="block text-sm font-medium mb-1">Topic</label>
-          <select id="contact-topic" name="topic"
-            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition">
-            <option>Order or delivery status</option>
-            <option>Product availability</option>
-            <option>Challenge or scoring help</option>
-            <option>Payment with MobilePay</option>
-            <option>Account or Quest Points</option>
-            <option>Return or exchange</option>
-            <option>Something else</option>
-          </select>
-        </div>
-        <div>
-          <label for="contact-message" class="block text-sm font-medium mb-1">Message</label>
-          <textarea id="contact-message" name="message" rows="4" required
-            class="w-full rounded-xl border border-mist bg-cream/40 px-3 py-2.5 focus:border-forest outline-none transition resize-y"
-            placeholder="Include your order number if you have one…"></textarea>
-        </div>
-        <button type="submit" class="w-full rounded-xl bg-forest hover:bg-forestSoft text-cream font-medium py-3 transition">
-          Send message
-        </button>
-        <p id="contact-status" class="text-sm text-center text-ink/55" role="status" aria-live="polite"></p>
-      </form>
-    </div>
-  </main>
-
-  <footer class="border-t border-mist mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-ink/45">
-      <p>© Basket Quest · Everyday shopping, made clearer</p>
-      <div class="flex gap-4">
-        <a href="#about" class="hover:text-forest">About</a>
-        <a href="#contact" class="hover:text-forest">Contact</a>
-        <a href="#profile" class="hover:text-forest">Profile</a>
-        <a href="#checkout" class="hover:text-forest">Checkout</a>
-      </div>
-    </div>
-  </footer>
-
+  <div id="site-footer"></div>
   <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden rounded-2xl bg-ink text-cream px-4 py-3 text-sm shadow-soft" role="status"></div>
-
-  <script src="js/app.js?v=4" defer></script>
+  <script src="js/app.js?v=6" defer></script>
 </body>
 </html>
