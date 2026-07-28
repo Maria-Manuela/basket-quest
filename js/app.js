@@ -74,6 +74,7 @@ let deliveryMethod = "parcel";
 let paymentMethod = "card";
 let bestScore = 0;
 let activeCategory = "All";
+let activeVendorFilter = null; // vendor id or null
 let orderPlaced = false;
 let lastOrderMeta = null;
 let toastTimer = null;
@@ -602,34 +603,117 @@ function productCard(p, compact = false) {
   if (compact) {
     return `
       <article class="rounded-2xl border border-mist bg-cream/50 p-3 flex flex-col" data-product-id="${p.id}">
-        <div class="flex items-center gap-2">
+        <button type="button" class="product-open text-left flex items-center gap-2" data-open-product="${p.id}">
           <span class="text-2xl" aria-hidden="true">${p.emoji}</span>
           <div class="min-w-0 flex-1">
             <p class="font-medium text-sm truncate">${p.name}</p>
             <p class="text-xs text-forest font-semibold">${formatDKK(p.price)}</p>
             <div class="mt-1">${badge}</div>
           </div>
-        </div>
+        </button>
         <button type="button" data-add="${p.id}" class="mt-3 rounded-lg bg-forest text-cream text-xs font-medium py-2 hover:bg-forestSoft transition">Quick add</button>
       </article>`;
   }
 
   return `
     <article class="card-hover rounded-3xl bg-white border border-mist p-4 shadow-soft flex flex-col" data-product-id="${p.id}">
-      <div class="flex items-start justify-between gap-2">
-        <div class="h-14 w-14 rounded-2xl bg-mist/70 flex items-center justify-center text-3xl" aria-hidden="true">${p.emoji}</div>
-        <p class="font-semibold text-forest">${formatDKK(p.price)}</p>
-      </div>
-      <h3 class="mt-3 font-display text-lg leading-snug">${p.name}</h3>
-      <p class="mt-1 text-sm text-ink/60 flex-1">${p.description}</p>
-      <p class="mt-2 text-xs text-ink/45">${p.category}</p>
-      <div class="mt-2 flex flex-wrap gap-1.5">
-        ${p.tags.map((t) => `<span class="text-[11px] rounded-full bg-forest/8 text-forestSoft px-2 py-0.5">${t}</span>`).join("")}
-      </div>
+      <button type="button" class="product-open text-left flex-1" data-open-product="${p.id}">
+        <div class="flex items-start justify-between gap-2">
+          <div class="h-14 w-14 rounded-2xl bg-mist/70 flex items-center justify-center text-3xl" aria-hidden="true">${p.emoji}</div>
+          <p class="font-semibold text-forest">${formatDKK(p.price)}</p>
+        </div>
+        <h3 class="mt-3 font-display text-lg leading-snug">${p.name}</h3>
+        <p class="mt-1 text-sm text-ink/60">${p.description}</p>
+        <p class="mt-2 text-xs text-ink/45">${p.category}</p>
+        <div class="mt-2 flex flex-wrap gap-1.5">
+          ${p.tags.map((t) => `<span class="text-[11px] rounded-full bg-forest/8 text-forestSoft px-2 py-0.5">${t}</span>`).join("")}
+        </div>
+        <p class="mt-3 text-xs text-forest/70 font-medium">View details →</p>
+      </button>
       <button type="button" data-add="${p.id}" class="mt-4 rounded-xl bg-forest hover:bg-forestSoft text-cream text-sm font-medium py-2.5 transition">
         ${inCart ? `Add another (${inCart})` : "Add to basket"}
       </button>
     </article>`;
+}
+
+function challengeFitNote(product) {
+  if (activeChallenge.freeStyle) {
+    const remaining = getBudgetRemaining();
+    if (getItemCount() === 0) return "A good free-style pick to start your basket.";
+    return product.price <= Math.max(remaining, 0)
+      ? "Fits your remaining soft budget."
+      : "Above your remaining soft budget.";
+  }
+  const missing = activeChallenge.requiredTags.filter((t) => !cartHasTag(t));
+  const helps = missing.filter((t) => product.tags.includes(t));
+  if (helps.length) return `Helps your quest: covers ${helps.join(" + ")}.`;
+  if (activeChallenge.requiredTags.some((t) => product.tags.includes(t))) return "Matches tags already in your quest.";
+  return "Browse detail, then add if it fits your plan.";
+}
+
+function openProductModal(productId) {
+  const product = getProduct(productId);
+  const modal = document.getElementById("product-modal");
+  const body = document.getElementById("product-modal-body");
+  if (!product || !modal || !body) return;
+  const vendor = VENDORS.find((v) => v.id === product.vendorId);
+  body.innerHTML = `
+    <div class="flex items-start gap-4">
+      <div class="h-16 w-16 rounded-2xl bg-mist/70 flex items-center justify-center text-4xl shrink-0" aria-hidden="true">${product.emoji}</div>
+      <div class="min-w-0">
+        <p class="text-xs uppercase tracking-wide text-ink/45">${product.category}${vendor ? ` · ${vendor.name}` : ""}</p>
+        <h2 id="modal-product-name" class="font-display text-2xl text-forest mt-1">${product.name}</h2>
+        <p class="font-semibold text-forest mt-1">${formatDKK(product.price)}</p>
+      </div>
+    </div>
+    <p class="mt-4 text-ink/70 leading-relaxed">${product.description}</p>
+    <div class="mt-4 flex flex-wrap gap-1.5">
+      ${product.tags.map((t) => `<span class="text-xs rounded-full bg-forest/10 text-forest px-2.5 py-1">${t}</span>`).join("")}
+    </div>
+    <p class="mt-4 text-sm rounded-xl bg-forest/5 border border-forest/10 px-3 py-2 text-forest">${challengeFitNote(product)}</p>
+    <div class="mt-5 flex flex-wrap gap-2">
+      <button type="button" data-add="${product.id}" class="rounded-xl bg-forest hover:bg-forestSoft text-cream font-medium px-5 py-2.5 transition">Add to basket</button>
+      <button type="button" id="modal-close-secondary" class="rounded-xl border border-mist px-5 py-2.5 text-sm font-medium text-ink/70 hover:border-forest/30 transition">Keep browsing</button>
+    </div>`;
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeProductModal() {
+  const modal = document.getElementById("product-modal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function clearVendorFilter() {
+  activeVendorFilter = null;
+  sessionStorage.removeItem("basketQuest.vendorFilter");
+  const url = new URL(location.href);
+  url.searchParams.delete("vendor");
+  const hashBase = (location.hash || "#shop").split("?")[0] || "#shop";
+  history.replaceState({}, "", url.pathname + url.search + hashBase);
+  showToast("Showing all products");
+  renderShop();
+}
+
+function readVendorFilterFromLocation() {
+  const fromSearch = new URLSearchParams(location.search).get("vendor");
+  const hash = (location.hash || "").replace(/^#/, "");
+  const hashQuery = hash.includes("?") ? hash.slice(hash.indexOf("?") + 1) : "";
+  const fromHash = hashQuery ? new URLSearchParams(hashQuery).get("vendor") : null;
+  const fromSession = sessionStorage.getItem("basketQuest.vendorFilter");
+  const candidate = fromSearch || fromHash || fromSession;
+  if (candidate && VENDORS.some((v) => v.id === candidate)) {
+    activeVendorFilter = candidate;
+    activeCategory = "All";
+    sessionStorage.setItem("basketQuest.vendorFilter", candidate);
+  }
+}
+
+function goToVendorShop(vendorId) {
+  sessionStorage.setItem("basketQuest.vendorFilter", vendorId);
+  location.href = `index.html?vendor=${encodeURIComponent(vendorId)}#shop`;
 }
 
 function renderBudgetBanners(result) {
@@ -954,15 +1038,17 @@ function renderShop() {
   if (document.getElementById("challenge-picker")) {
     document.getElementById("challenge-title").textContent = activeChallenge.title;
     document.getElementById("challenge-brief").textContent = activeChallenge.brief;
+    const sideTitle = document.getElementById("side-challenge-title");
+    if (sideTitle) sideTitle.textContent = activeChallenge.title;
     const liveScore = result.itemCount === 0 ? 0 : result.score;
-    document.getElementById("live-score").innerHTML = `${liveScore}<span class="text-lg text-cream/70">/100</span>`;
+    document.getElementById("live-score").innerHTML = `${liveScore}<span class="text-base text-cream/70">/100</span>`;
     document.getElementById("score-bar").style.width = `${liveScore}%`;
     document.getElementById("score-hint").textContent = result.itemCount === 0
       ? (activeChallenge.freeStyle ? "Add favorites to build your basket." : "Add products to start scoring.")
       : activeChallenge.freeStyle
         ? (result.withinBudget ? "On your soft budget — checkout whenever you’re ready." : "Over your soft budget — try a cheaper favorite offer below.")
         : result.complete ? "Challenge complete — continue to checkout when ready."
-        : "Score updates as your basket changes.";
+        : "Here’s what you still need for this quest.";
 
     document.getElementById("challenge-picker").innerHTML = CHALLENGES.map((c) => `
       <button type="button" data-challenge="${c.id}"
@@ -996,8 +1082,31 @@ function renderShop() {
         c === activeCategory ? "bg-forest text-cream border-forest" : "bg-white text-ink/70 border-mist hover:border-forest/40"
       }">${c}</button>`).join("");
 
-    const list = PRODUCTS.filter((p) => activeCategory === "All" || p.category === activeCategory);
-    document.getElementById("product-grid").innerHTML = list.map((p) => productCard(p)).join("");
+    const vendorChip = document.getElementById("vendor-filter-chip");
+    const vendor = activeVendorFilter ? VENDORS.find((v) => v.id === activeVendorFilter) : null;
+    if (vendorChip) {
+      if (vendor) {
+        vendorChip.classList.remove("hidden");
+        vendorChip.innerHTML = `
+          <span class="inline-flex items-center gap-2 rounded-full bg-forest/10 text-forest border border-forest/20 px-3 py-1.5 text-sm">
+            ${vendor.emoji} ${vendor.name}
+            <button type="button" id="clear-vendor-filter" class="font-semibold hover:text-coral" aria-label="Clear vendor filter">×</button>
+          </span>`;
+        document.getElementById("clear-vendor-filter")?.addEventListener("click", clearVendorFilter);
+      } else {
+        vendorChip.classList.add("hidden");
+        vendorChip.innerHTML = "";
+      }
+    }
+
+    const list = PRODUCTS.filter((p) => {
+      const catOk = activeCategory === "All" || p.category === activeCategory;
+      const vendorOk = !activeVendorFilter || p.vendorId === activeVendorFilter;
+      return catOk && vendorOk;
+    });
+    document.getElementById("product-grid").innerHTML = list.length
+      ? list.map((p) => productCard(p)).join("")
+      : `<p class="text-sm text-ink/50 col-span-full">No products match this filter.</p>`;
 
     const reco = getRecommendations(3);
     document.getElementById("reco-title").textContent = reco.title;
@@ -1138,7 +1247,7 @@ function renderVendors() {
         <ul class="mt-2 space-y-1.5 text-sm text-ink/70">
           ${sampleProducts.map((p) => `<li>${p.emoji} ${p.name} · ${formatDKK(p.price)}</li>`).join("")}
         </ul>
-        <a href="index.html#shop" class="inline-flex mt-4 rounded-xl bg-forest text-cream px-4 py-2 text-sm font-medium hover:bg-forestSoft transition">Shop products</a>
+        <button type="button" data-shop-vendor="${selected.id}" class="inline-flex mt-4 rounded-xl bg-forest text-cream px-4 py-2 text-sm font-medium hover:bg-forestSoft transition">Shop ${selected.name} products</button>
       ` : ""}
     </div>`;
 }
@@ -1214,12 +1323,17 @@ function bindShopEvents() {
     const inc = e.target.closest("[data-inc]");
     const dec = e.target.closest("[data-dec]");
     const remove = e.target.closest("[data-remove]");
+    const openProduct = e.target.closest("[data-open-product]");
     if (challenge) selectChallenge(challenge.dataset.challenge);
     if (category) {
       activeCategory = category.dataset.category;
       renderShop();
     }
-    if (add) addToCart(add.dataset.add);
+    if (openProduct) openProductModal(openProduct.dataset.openProduct);
+    if (add) {
+      addToCart(add.dataset.add);
+      closeProductModal();
+    }
     if (inc) addToCart(inc.dataset.inc);
     if (dec) removeFromCart(dec.dataset.dec);
     if (remove) {
@@ -1227,6 +1341,15 @@ function bindShopEvents() {
       orderPlaced = false;
       persistAndRender();
     }
+  });
+
+  document.getElementById("product-modal-backdrop")?.addEventListener("click", closeProductModal);
+  document.getElementById("modal-close")?.addEventListener("click", closeProductModal);
+  document.body.addEventListener("click", (e) => {
+    if (e.target.id === "modal-close-secondary") closeProductModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeProductModal();
   });
 
   document.body.addEventListener("change", (e) => {
@@ -1250,6 +1373,7 @@ function bindAboutEvents() {
   document.body.addEventListener("click", (e) => {
     const filter = e.target.closest("[data-vendor-filter]");
     const vendor = e.target.closest("[data-vendor]");
+    const shopVendor = e.target.closest("[data-shop-vendor]");
     if (filter) {
       vendorFilter = filter.dataset.vendorFilter;
       renderVendors();
@@ -1257,6 +1381,9 @@ function bindAboutEvents() {
     if (vendor) {
       selectedVendorId = vendor.dataset.vendor;
       renderVendors();
+    }
+    if (shopVendor) {
+      goToVendorShop(shopVendor.dataset.shopVendor);
     }
   });
 }
@@ -1286,12 +1413,17 @@ function bindContactEvents() {
 
 function boot() {
   loadState();
+  readVendorFilterFromLocation();
   renderChrome();
 
   if (PAGE === "shop") {
     bindShopEvents();
-    if (!location.hash) location.hash = "shop";
+    if (!location.hash || location.hash === "#") location.hash = "shop";
     navigateShop();
+    if (activeVendorFilter) {
+      const vendor = VENDORS.find((v) => v.id === activeVendorFilter);
+      if (vendor) showToast(`Showing ${vendor.name} products`);
+    }
   } else if (PAGE === "about") {
     bindAboutEvents();
     renderVendors();
